@@ -1,0 +1,4 @@
+openai
+requests_oauthlib
+requests
+re
