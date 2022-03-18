@@ -2,10 +2,13 @@ import os, openai, json, random, re, requests
 from http.client import responses
 from requests_oauthlib import OAuth1Session
 
+def is_lottery_winner(chance):
+    raffle = [False] * chance
+    raffle[len(raffle)//2] = True
+
+    return random.choice(raffle)
+
 def bearer_oauth(r):
-    """
-    Method required by bearer token authentication.
-    """
     bearer_token = os.environ.get("BEARER_TOKEN")
     r.headers["Authorization"] = f"Bearer {bearer_token}"
     r.headers["User-Agent"] = "Azuki Bot"
@@ -13,7 +16,7 @@ def bearer_oauth(r):
     return r
 
 def get_mentions():
-    twitter_id = os.environ.get("TWITTER_ID") # Kai's ID
+    twitter_id = os.environ.get("TWITTER_ID")
     url = f'https://api.twitter.com/2/users/{twitter_id}/mentions'
     response = requests.request("GET", url, auth=bearer_oauth)
 
@@ -41,8 +44,8 @@ def pick_candidates(tweets):
                         response.status_code, response.text
                     ) 
                 )
-            resp_json = response.json()
-            if resp_json['meta']['result_count'] % 2 == 0:
+            
+            if bool(filter_tweet(tweet['text']).strip()):
                 candidates.append(tweet)
 
     return candidates
@@ -108,15 +111,26 @@ def tweet_response(oauth, resp, tweet_id):
     # Saving the response as JSON
     json_response = response.json()
     print(json.dumps(json_response, indent=4, sort_keys=True))
+    
     # Write tweet ID to replies file
     open('data/replies.txt', 'a').write(f'{tweet_id}\n')
 
 
 
 if __name__ == "__main__":
-    oauth = create_oath_session()
-    mentions = get_mentions()
-    tweet = random.choice(pick_candidates(mentions))
-    print('Tweet chosen:', tweet)
-    response = generate_response(tweet['text'])
-    tweet_response(oauth=oauth, resp=response, tweet_id=tweet['id'])
+    lottery = os.getenv("LOTTERY", '1')
+
+    if is_lottery_winner(int(lottery)):
+        oauth = create_oath_session()
+        mentions = get_mentions()
+        candidates = pick_candidates(mentions)
+
+        if len(candidates) > 0:
+            tweet = random.choice(candidates)
+            print('Tweet chosen:', tweet)
+            response = generate_response(tweet['text'])
+            tweet_response(oauth=oauth, resp=response, tweet_id=tweet['id'])
+        else:
+            print('No candidates left from mentions.')
+    else:
+        print('Lost raffle. Tweet won\'t be sent.')
