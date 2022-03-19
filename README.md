@@ -78,6 +78,8 @@ The command above creates the docker image that you can now build from.
 `docker run -e TWITTER_ID="12345" -e BEARER_TOKEN="AAA" -e OPENAI_API_KEY="BBB" -e TWITTER_API_KEY="CCC" -e TWITTER_API_SECRET="DDD" -e OAUTH_TOKEN="EEE" -e OAUTH_TOKEN_SECRET="FFF" -e LOTTERY="4" -v /home/<user>/twitter-responder/data:/data twitter-responder`
 
 Switch the `/home/<user>` path with the absolute path to where you cloned the repository on your server.
+
+**Important:** you may notice the `-v` argument being passed into docker run. That argument is used to mount and bind to the host filesystem. This allows the program to write to the `data/replies.txt` file on the host which persists beyond the lifespan of each container. The `data/replies.txt` file contains the IDs of all tweets the service has responded to so that it knows to avoid responding to those repeatedly.
  
  **Step four**: To run your docker container on a scheule, you can set up a cron job:
  1. `sudo crontab -e` (opens an editor)
