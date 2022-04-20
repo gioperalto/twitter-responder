@@ -124,9 +124,7 @@ if __name__ == "__main__":
     if is_lottery_winner(int(lottery)):
         oauth = create_oath_session()
         mentions = get_mentions()
-        print('Mentions:', mentions)
         candidates = pick_candidates(mentions)
-        print('Candidates:', candidates)
 
         if len(candidates) > 0:
             tweet = random.choice(candidates)
