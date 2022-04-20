@@ -121,8 +121,6 @@ def tweet_response(oauth, resp, tweet_id):
 if __name__ == "__main__":
     lottery = os.getenv("LOTTERY", '1')
 
-    print(filter_tweet('@Azuki7078 @Amber42764952 @metaf1club @__2tone__ @boredHirshy @FishSwamp @farnaz_dashti @toroi_bb @sparks_1030 @BigSexyBartolo @EfePenguin @The_NFT_Patron @steph2149 @ArmanSinghh @istrawb3rry_ @Mahmudul_77 @cryptogride @jaypee47 @wolfofcryptosr @RockPreddy @catchmiuniverse forreal lol'))
-
     if is_lottery_winner(int(lottery)):
         oauth = create_oath_session()
         mentions = get_mentions()
