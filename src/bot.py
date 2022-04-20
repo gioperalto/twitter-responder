@@ -51,7 +51,8 @@ def pick_candidates(tweets):
     return candidates
 
 def filter_tweet(tweet):
-    tweet = re.sub("@[a-zA-Z0-9]+", "", tweet)
+    tweet = re.sub("@AzukiOfficial", "Azuki", tweet)
+    tweet = re.sub("@[a-zA-Z0-9_]+", "", tweet)
     tweet = re.sub("https://[a-zA-Z0-9\.\/]+", "", tweet)
     tweet = re.sub("http://[a-zA-Z0-9\.\/]+", "", tweet)
 
