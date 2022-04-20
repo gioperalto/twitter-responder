@@ -51,7 +51,8 @@ def pick_candidates(tweets):
     return candidates
 
 def filter_tweet(tweet):
-    tweet = re.sub("@[a-zA-Z0-9]+", "", tweet)
+    tweet = re.sub("@AzukiOfficial", "Azuki", tweet)
+    tweet = re.sub("@[a-zA-Z0-9_]+", "", tweet)
     tweet = re.sub("https://[a-zA-Z0-9\.\/]+", "", tweet)
     tweet = re.sub("http://[a-zA-Z0-9\.\/]+", "", tweet)
 
@@ -120,10 +121,14 @@ def tweet_response(oauth, resp, tweet_id):
 if __name__ == "__main__":
     lottery = os.getenv("LOTTERY", '1')
 
+    print(filter_tweet('@Azuki7078 @Amber42764952 @metaf1club @__2tone__ @boredHirshy @FishSwamp @farnaz_dashti @toroi_bb @sparks_1030 @BigSexyBartolo @EfePenguin @The_NFT_Patron @steph2149 @ArmanSinghh @istrawb3rry_ @Mahmudul_77 @cryptogride @jaypee47 @wolfofcryptosr @RockPreddy @catchmiuniverse forreal lol'))
+
     if is_lottery_winner(int(lottery)):
         oauth = create_oath_session()
         mentions = get_mentions()
+        print('Mentions:', mentions)
         candidates = pick_candidates(mentions)
+        print('Candidates:', candidates)
 
         if len(candidates) > 0:
             tweet = random.choice(candidates)
