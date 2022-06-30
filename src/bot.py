@@ -50,6 +50,25 @@ def pick_candidates(tweets):
 
     return candidates
 
+def inject_context(tweet):
+    tweet_stack, context = [], ''
+    url = f"https://api.twitter.com/2/tweets?ids={tweet['id']}&tweet.fields=author_id,conversation_id,created_at,in_reply_to_user_id,referenced_tweets&expansions=author_id,in_reply_to_user_id,referenced_tweets.id&user.fields=name,username"
+    response = json.loads(requests.request("GET", url, auth=bearer_oauth).text)
+
+    for i in range(len(response['includes']['tweets'])):
+        for user in response['includes']['users']:
+            if user['id'] == response['includes']['tweets'][i]['author_id']:
+                item = { 'name': user['name'], 'text': response['includes']['tweets'][i]['text'] }
+                tweet_stack.append(item)
+
+    for i in range(len(tweet_stack)):
+        item = tweet_stack.pop()
+        context += f"{item['name']}: {filter_tweet(item['text'])}"
+
+    context += f"\nYou: {filter_tweet(tweet['text'])}"
+
+    return context
+
 def filter_tweet(tweet):
     tweet = re.sub("@AzukiOfficial", "Azuki", tweet)
     tweet = re.sub("@[a-zA-Z0-9_]+", "", tweet)
@@ -63,16 +82,16 @@ def generate_response(question):
     personality = open('seeds/personality.txt', 'r').read()
 
     # Filter out mentions from question
-    question = filter_tweet(question)
+    context = inject_context(question)
 
     response = openai.Completion.create(
-        engine="text-davinci-001",
-        prompt=f"{personality}\n    \nYou: {question}\nKai:",
-        temperature=0.5,
+        engine="text-davinci-002",
+        prompt=f"{personality}\n\n{context}\nKai:",
+        temperature=0.9,
         max_tokens=60,
         top_p=1,
         frequency_penalty=0.5,
-        presence_penalty=0
+        presence_penalty=0.6
     )
 
     story = response['choices'][0]['text']
