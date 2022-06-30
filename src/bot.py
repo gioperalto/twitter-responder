@@ -52,6 +52,7 @@ def pick_candidates(tweets):
 
 def inject_context(tweet):
     tweet_stack, context = [], ''
+    print(tweet)
     url = f"https://api.twitter.com/2/tweets?ids={tweet['id']}&tweet.fields=author_id,conversation_id,created_at,in_reply_to_user_id,referenced_tweets&expansions=author_id,in_reply_to_user_id,referenced_tweets.id&user.fields=name,username"
     response = json.loads(requests.request("GET", url, auth=bearer_oauth).text)
 
@@ -77,12 +78,12 @@ def filter_tweet(tweet):
 
     return tweet.strip()
 
-def generate_response(question):
+def generate_response(tweet):
     openai.api_key = os.environ.get("OPENAI_API_KEY")
     personality = open('seeds/personality.txt', 'r').read()
 
-    # Filter out mentions from question
-    context = inject_context(question)
+    # Filter out mentions from tweet
+    context = inject_context(tweet)
 
     response = openai.Completion.create(
         engine="text-davinci-002",
@@ -148,7 +149,7 @@ if __name__ == "__main__":
         if len(candidates) > 0:
             tweet = random.choice(candidates)
             print('Tweet chosen:', tweet)
-            response = generate_response(tweet['text'])
+            response = generate_response(tweet)
             tweet_response(oauth=oauth, resp=response, tweet_id=tweet['id'])
         else:
             print('No candidates left from mentions.')
