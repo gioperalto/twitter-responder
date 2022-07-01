@@ -52,7 +52,6 @@ def pick_candidates(tweets):
 
 def inject_context(tweet):
     tweet_stack, context = [], ''
-    print(tweet)
     url = f"https://api.twitter.com/2/tweets?ids={tweet['id']}&tweet.fields=author_id,conversation_id,created_at,in_reply_to_user_id,referenced_tweets&expansions=author_id,in_reply_to_user_id,referenced_tweets.id&user.fields=name,username"
     response = json.loads(requests.request("GET", url, auth=bearer_oauth).text)
 
@@ -64,6 +63,7 @@ def inject_context(tweet):
 
     for i in range(len(tweet_stack)):
         item = tweet_stack.pop()
+        print(item)
         context += f"{item['name']}: {filter_tweet(item['text'])}"
 
     context += f"\nYou: {filter_tweet(tweet['text'])}"
@@ -71,6 +71,10 @@ def inject_context(tweet):
     return context
 
 def filter_tweet(tweet):
+    if len(re.findall("@Azuki7078", tweet)) > 1:
+        tweet = re.sub("@Azuki7078", "", tweet, 1)
+        tweet = re.sub("@Azuki7078", "Kai", tweet)
+    
     tweet = re.sub("@AzukiOfficial", "Azuki", tweet)
     tweet = re.sub("@[a-zA-Z0-9_]+", "", tweet)
     tweet = re.sub("https://[a-zA-Z0-9\.\/]+", "", tweet)
